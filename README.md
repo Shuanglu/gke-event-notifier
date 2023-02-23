@@ -1,7 +1,7 @@
 # GKE-Event-Notifier 
 
 ## Introduction 
-A golang Cloud Function which subscribes the GKE events from a PubSub topic and send the event like below to Slack channel via webhook
+A golang Cloud Function which subscribes the GKE events from a PubSub topic and sends the event like below to Slack channel via webhook
 
 ```
 MASTER of cluster <cluster name> is upgrading from version <cluster version> to version <cluster version>.
