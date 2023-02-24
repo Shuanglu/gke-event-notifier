@@ -63,7 +63,7 @@ func UpgradeEvent(ctx context.Context, psm PubSubMessage, slackMessage slack.Web
 	}
 	var headerText string
 	if upgradePayload.ResourceType == "MASTER" {
-		headerText = fmt.Sprintf("%v of cluster %v is upgrading from version %v to version %v.", upgradePayload.ResourceType, psm.Attributes["cluster_name"], upgradePayload.CurrentVersion, upgradePayload.TargetVersion)
+		headerText = fmt.Sprintf(":megahon: *%v of cluster %v is upgrading from version %v to version %v* :megahon:", strings.ToLower(upgradePayload.ResourceType), psm.Attributes["cluster_name"], upgradePayload.CurrentVersion, upgradePayload.TargetVersion)
 	} else {
 		nodepoolTmp := nodepoolRe.FindAllString(upgradePayload.Resource, -1)
 		if len(nodepoolTmp) <= 0 {
@@ -71,21 +71,13 @@ func UpgradeEvent(ctx context.Context, psm PubSubMessage, slackMessage slack.Web
 		}
 		// always use the last match as nodepool name
 		nodepoolName := strings.Split(nodepoolTmp[len(nodepoolTmp)-1], "/")[2]
-		headerText = fmt.Sprintf("%v %v of cluster %v is upgrading from version %v to version %v.", upgradePayload.ResourceType, nodepoolName, psm.Attributes["cluster_name"], upgradePayload.CurrentVersion, upgradePayload.TargetVersion)
+		headerText = fmt.Sprintf(":megahon: *%v %v of cluster %v is upgrading from version %v to version %v* :megahon:", strings.ToLower(upgradePayload.ResourceType), nodepoolName, psm.Attributes["cluster_name"], upgradePayload.CurrentVersion, upgradePayload.TargetVersion)
 	}
 	// build message blocks --> https://github.com/slack-go/slack/blob/master/examples/blocks/blocks.go
 
 	// header
-	var headerTextBlockObject *slack.TextBlockObject
-	var headerBlock slack.Block
-	headerTextBlockObject = slack.NewTextBlockObject(plaintextElementType, headerText, false, false)
-	if len(headerText) > 150 {
-		// header text has 150 characters limit. need to fall back to sectionBlock if it exceeds. ref: https://api.slack.com/reference/block-kit/blocks#header
-		log.Printf("Header text exceeds the 150 characters length limit")
-		headerBlock = slack.NewSectionBlock(headerTextBlockObject, nil, nil)
-	} else {
-		headerBlock = slack.NewHeaderBlock(headerTextBlockObject)
-	}
+	headerTextBlockObject := slack.NewTextBlockObject(markdownElementType, headerText, false, false)
+	headerBlock := slack.NewSectionBlock(headerTextBlockObject, nil, nil)
 
 	// Fields
 
